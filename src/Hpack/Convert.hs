@@ -41,19 +41,62 @@ sectionWithBuildInfo d Cabal.BuildInfo{..} =
             , sectionIncludeDirs = includeDirs
             , sectionInstallIncludes = installIncludes
             , sectionLdOptions = ldOptions
-            , sectionBuildable = Just buildable -- TODO <- ????
-            , sectionConditionals = [] -- TODO <- ????
+            , sectionBuildable = Just buildable
+            -- TODO ^^ ????
+            , sectionConditionals = []
+            -- TODO ^^ ????
             , sectionBuildTools = map fromDependency buildTools
             }
 
 fromCondLibrary condLibrary = do
-    Cabal.CondNode (Cabal.Library{libBuildInfo}) _ _ <- condLibrary
+    Cabal.CondNode Cabal.Library{libBuildInfo} _ _ <- condLibrary
     l <- libFromCondLibrary condLibrary
     return (sectionWithBuildInfo l libBuildInfo)
 
-fromCondExecutables = const []
-fromCondTestSuites = const []
-fromCondBenchmarks = const []
+exeFromCondExecutableTup (name, Cabal.CondNode Cabal.Executable{..} _ _) =
+    Executable { executableName = name
+               , executableMain = modulePath
+               , executableOtherModules = map (show . Cabal.disp)
+                                              (Cabal.otherModules buildInfo)
+               }
+
+testExeFromCondExecutableTup (name, Cabal.CondNode Cabal.TestSuite{..} _ _) =
+    case testInterface of
+        Cabal.TestSuiteExeV10 _ mainIs -> Just $
+            Executable { executableName = name
+                       , executableMain = mainIs
+                       , executableOtherModules = map (show . Cabal.disp)
+                                                  (Cabal.otherModules testBuildInfo)
+                       }
+        _ -> Nothing
+
+benchExeFromCondExecutableTup (name, Cabal.CondNode Cabal.Benchmark{..} _ _) =
+    case benchmarkInterface of
+        Cabal.BenchmarkExeV10 _ mainIs -> Just $
+            Executable { executableName = name
+                       , executableMain = mainIs
+                       , executableOtherModules = map (show . Cabal.disp)
+                                                  (Cabal.otherModules benchmarkBuildInfo)
+                       }
+        _ -> Nothing
+
+fromCondExecutableTup etup@(_, Cabal.CondNode Cabal.Executable{buildInfo} _ _) =
+    let e = exeFromCondExecutableTup etup
+    in sectionWithBuildInfo e buildInfo
+
+fromCondTestSuiteTup ttup@(_, Cabal.CondNode Cabal.TestSuite{testBuildInfo} _ _) = do
+    te <- testExeFromCondExecutableTup ttup
+    return $ sectionWithBuildInfo te testBuildInfo
+
+fromCondBenchmarkTup btup@(_, Cabal.CondNode Cabal.Benchmark{benchmarkBuildInfo} _ _) = do
+    be <- benchExeFromCondExecutableTup btup
+    return $ sectionWithBuildInfo be benchmarkBuildInfo
+
+fromCondExecutables = map fromCondExecutableTup
+
+fromCondTestSuites = catMaybes . map fromCondTestSuiteTup
+
+fromCondBenchmarks = catMaybes . map fromCondBenchmarkTup
 
 libFromCondLibrary condLibrary = do
     Cabal.CondNode (Cabal.Library{..}) _ _ <- condLibrary
