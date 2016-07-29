@@ -104,6 +104,7 @@ test-suite spec
   other-modules:
       Helper
       Hpack.ConfigSpec
+      Hpack.ConvertSpec
       Hpack.FormattingHintsSpec
       Hpack.GenericsUtilSpec
       Hpack.HaskellSpec
