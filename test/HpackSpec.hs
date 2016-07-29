@@ -1,17 +1,19 @@
 module HpackSpec (spec) where
 
-import           Prelude ()
+import           Prelude                ()
 import           Prelude.Compat
 
-import           Control.Monad.Compat
 import           Control.DeepSeq
-import           Data.Version (Version(..), showVersion)
+import           Control.Monad.Compat
+import           Data.Version           (Version (..), showVersion)
 
 import           Test.Hspec
 import           Test.Mockery.Directory
 import           Test.QuickCheck
 
 import           Hpack
+import           Hpack.Config
+import           Hpack.Convert
 
 makeVersion :: [Int] -> Version
 makeVersion v = Version v []
@@ -41,6 +43,57 @@ spec = do
       forAll (replicateM 3 positive) $ \xs -> do
         let v = Version xs []
         parseVersion (showVersion v) `shouldBe` Just v
+
+  describe "fromPackageDescriptionString" $ do
+    describe "simple generated cabal file" $ do
+      it "cabal init -m" $ do
+        pkgDescription <- readFile "./test/data/cabal-init-minimal.cabal"
+        let pkg = fromPackageDescriptionString pkgDescription
+        pkg `shouldBe` Right Package { packageName = "cabal-init-minimal"
+                                     , packageVersion = "0.1.0.0"
+                                     , packageSynopsis = Nothing
+                                     , packageDescription = Nothing
+                                     , packageHomepage = Nothing
+                                     , packageBugReports = Nothing
+                                     , packageCategory = Nothing
+                                     , packageStability = Nothing
+                                     , packageAuthor = [ "Pedro Tacla Yamada" ]
+                                     , packageMaintainer = [ "tacla.yamada@gmail.com" ]
+                                     , packageCopyright = []
+                                     , packageLicense = Just "PublicDomain"
+                                     , packageLicenseFile = Nothing
+                                     , packageTestedWith = Nothing
+                                     , packageFlags = []
+                                     , packageExtraSourceFiles = ["ChangeLog.md"]
+                                     , packageDataFiles = []
+                                     , packageSourceRepository = Nothing
+                                     , packageLibrary = Just Section { sectionData = Library { libraryExposed = Just True
+                                                                                             , libraryExposedModules = []
+                                                                                             , libraryOtherModules = []
+                                                                                             , libraryReexportedModules = []
+                                                                                             }
+                                                                     , sectionSourceDirs = ["src"]
+                                                                     , sectionDependencies = [ Dependency "base >=4.8 && <4.9" Nothing ]
+                                                                     , sectionDefaultExtensions = []
+                                                                     , sectionOtherExtensions = []
+                                                                     , sectionGhcOptions = []
+                                                                     , sectionGhcProfOptions = []
+                                                                     , sectionCppOptions = []
+                                                                     , sectionCCOptions = []
+                                                                     , sectionCSources = []
+                                                                     , sectionExtraLibDirs = []
+                                                                     , sectionExtraLibraries = []
+                                                                     , sectionIncludeDirs = []
+                                                                     , sectionInstallIncludes = []
+                                                                     , sectionLdOptions = []
+                                                                     , sectionBuildable = Just True
+                                                                     , sectionConditionals = []
+                                                                     , sectionBuildTools = []
+                                                                     }
+                                     , packageExecutables = []
+                                     , packageTests = []
+                                     , packageBenchmarks = []
+                                     }
 
   describe "hpackWithVersion" $ do
     context "when only the hpack version in the cabal file header changed" $ do
