@@ -29,6 +29,7 @@ module Hpack.Config (
 , Conditional(..)
 , Flag(..)
 , SourceRepository(..)
+, HasFieldNames(..)
 #ifdef TEST
 , renameDependencies
 , HasFieldNames(..)

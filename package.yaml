@@ -30,6 +30,9 @@ library:
     - Hpack.Run
     - Hpack.Yaml
 
+    - Hpack.GenericsUtil
+    - Hpack.Util
+
 executables:
   hpack:
     main: Main.hs
