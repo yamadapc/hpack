@@ -30,7 +30,7 @@ import           System.IO
 import           System.IO.Error
 import           Text.ParserCombinators.ReadP
 
-import           Paths_hpack (version)
+import           Paths_hpack_convert (version)
 import           Hpack.Config
 import           Hpack.Convert.Run
 import           Hpack.Run
@@ -51,21 +51,15 @@ main = do
   args <- getArgs
   case args of
     ["--version"] -> putStrLn (programVersion version)
-    ("--convert":_) -> runConvert
     ["--help"] -> printHelp
-    _ -> case parseVerbosity args of
-      (verbose, [dir]) -> hpack dir verbose
-      (verbose, []) -> hpack "" verbose
-      _ -> do
-        printHelp
-        exitFailure
+    _ -> runConvert
 
 printHelp :: IO ()
 printHelp = do
   hPutStrLn stderr $ unlines [
-      "Usage: hpack [ --silent ] [ dir ]"
-    , "       hpack --convert [ dir | cabalfile ]"
-    , "       hpack --version"
+      "Usage: hpack-convert [ dir | cabalfile ]"
+    , "       hpack-convert --version"
+    , "       hpack-convert --help"
     ]
 
 parseVerbosity :: [String] -> (Bool, [String])

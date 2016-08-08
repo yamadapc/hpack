@@ -1,9 +1,9 @@
-name: hpack
+name: hpack-convert
 version: 0.14.1
-synopsis: An alternative format for Haskell packages
-maintainer: Simon Hengel <sol@typeful.net>
+synopsis: Convert Cabal manifests into hpack's package.yamls
+maintainer: Pedro Tacla Yamada <tacla.yamada@gmail.com>
 license: MIT
-github: sol/hpack
+github: yamadapc/hpack-convert
 category: Development
 
 ghc-options: -Wall
@@ -35,11 +35,11 @@ library:
     - Hpack.Yaml
 
 executables:
-  hpack:
+  hpack-convert:
     main: Main.hs
     source-dirs: driver
     dependencies:
-      - hpack
+      - hpack-convert
       - aeson >= 0.8
 
 tests:
