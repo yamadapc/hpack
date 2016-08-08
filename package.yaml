@@ -30,6 +30,7 @@ library:
     - aeson >= 0.8
   exposed-modules:
     - Hpack
+    - Hpack.Convert
     - Hpack.Config
     - Hpack.Run
     - Hpack.Yaml
