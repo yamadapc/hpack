@@ -49,7 +49,6 @@ main = do
   args <- getArgs
   case args of
     ["--version"] -> putStrLn (programVersion version)
-    ("--convert":_) -> runConvert
     ["--help"] -> printHelp
     _ -> runConvert
 
