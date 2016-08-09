@@ -332,24 +332,27 @@ instance ToJSON Package where
            "license-file"
            o
       ) $
-      pullCommonFields "build-tools" $
-      pullCommonFields "conditionals" $
-      pullCommonFields "buildable" $
-      pullCommonFields "ld-options" $
-      pullCommonFields "install-includes" $
-      pullCommonFields "include-dirs" $
-      pullCommonFields "extra-libraries" $
-      pullCommonFields "extra-lib-dirs" $
-      pullCommonFields "c-sources" $
-      pullCommonFields "cc-options" $
-      pullCommonFields "cpp-options" $
-      pullCommonFields "ghc-prof-options" $
-      pullCommonFields "ghc-options" $
-      pullCommonFields "other-extensions" $
-      pullCommonFields "default-extensions" $
-      pullCommonFields "other-modules" $
-      pullCommonFields "source-dirs" $
-      pullCommonFields "dependencies" (genericToJSON_ p)
+      foldr pullCommonFields
+            (genericToJSON_ p)
+            ([ "build-tools"
+             , "conditionals"
+             , "buildable"
+             , "ld-options"
+             , "install-includes"
+             , "include-dirs"
+             , "extra-libraries"
+             , "extra-lib-dirs"
+             , "c-sources"
+             , "cc-options"
+             , "cpp-options"
+             , "ghc-prof-options"
+             , "ghc-options"
+             , "other-extensions"
+             , "default-extensions"
+             , "other-modules"
+             , "source-dirs"
+             , "dependencies"
+             ] :: [Text])
 
 pullCommonFields :: Text -> Value -> Value
 pullCommonFields field topLevel@(Object topLevelObj) =
@@ -475,8 +478,8 @@ instance {-# OVERLAPS #-} ToJSON (Section ()) where
           s {sectionBuildable = Nothing}
       omitRedundantBuildable s = s
 
-instance (Generic (Section a), HasTypeName (Section a), ToJSON a) =>
-          ToJSON (Section a) where
+instance (Generic (Section a), GToJSON (Rep (Section a)), HasTypeName (Section a),
+          ToJSON a) => ToJSON (Section a) where
   toJSON sect@Section{..} =
     omitBuildableTrue (omitSection
       (mergeObjects

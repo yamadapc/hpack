@@ -7,7 +7,7 @@ license: MIT
 github: yamadapc/hpack-convert
 category: Development
 
-ghc-options: -Wall
+ghc-options: -Wall -fcontext-stack=100
 
 dependencies:
   - base >= 4.7 && < 5
@@ -24,11 +24,11 @@ dependencies:
   - yaml
   - bytestring
   - vector
+  - aeson == 0.11.*
 
 library:
   source-dirs: src
   dependencies:
-    - aeson >= 0.8
   exposed-modules:
     - Hpack
     - Hpack.Convert
@@ -41,8 +41,7 @@ executables:
     main: Main.hs
     source-dirs: driver
     dependencies:
-      - hpack-convert -any
-      - aeson >= 0.8
+      - hpack-convert
 
 tests:
   spec:
@@ -57,5 +56,4 @@ tests:
       - temporary
       - mockery >= 0.3
       - interpolate
-      - aeson-qq
-      - aeson >= 0.10
+      - aeson == 0.11.*
