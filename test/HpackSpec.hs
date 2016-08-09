@@ -13,7 +13,7 @@ import           Test.QuickCheck
 
 import           Hpack
 import           Hpack.Config ()
-import           Hpack.Convert
+import           Hpack.Convert ()
 
 makeVersion :: [Int] -> Version
 makeVersion v = Version v []
