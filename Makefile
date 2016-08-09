@@ -1,3 +1,6 @@
+docker-build:
+	for dockerfile in dockerfiles/*; do docker build -f $$dockerfile . ; done
+
 all:
 	make x86_64-osx/hpack-convert
 	make x86_64-linux/hpack-convert
