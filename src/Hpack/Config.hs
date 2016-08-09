@@ -486,8 +486,8 @@ instance ToJSON (Section ()) where
           s {sectionBuildable = Nothing}
       omitRedundantBuildable s = s
 
-instance (Generic (Section a), HasTypeName (Section a), ToJSON a) =>
-          ToJSON (Section a) where
+instance (Generic (Section a), GToJSON (Rep (Section a)), HasTypeName (Section a),
+          ToJSON a) => ToJSON (Section a) where
   toJSON sect@Section{..} =
     omitBuildableTrue (omitSection
       (mergeObjects
