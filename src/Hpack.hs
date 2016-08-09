@@ -54,7 +54,7 @@ main = do
 
 printHelp :: IO ()
 printHelp = do
-  hPutStrLn stderr $ unlines [
+  hPutStr stderr $ unlines [
       "Usage: hpack-convert [ dir | cabalfile ]"
     , "       hpack-convert --version"
     , "       hpack-convert --help"
