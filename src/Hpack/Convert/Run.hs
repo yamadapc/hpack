@@ -4,13 +4,15 @@ module Hpack.Convert.Run
     )
   where
 
-import           Control.Applicative
+import           Prelude ()
+import           Prelude.Compat
+
 import           Control.Monad
 import           Data.List
 import           Data.Maybe
 import           System.Directory
 import           System.Environment
-import           System.Exit
+import           System.Exit.Compat
 import           System.FilePath
 import           System.FilePath.Glob
 

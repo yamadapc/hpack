@@ -25,7 +25,6 @@ import           Data.Maybe
 import           Data.Version (Version)
 import qualified Data.Version as Version
 import           System.Environment
-import           System.Exit
 import           System.IO
 import           System.IO.Error
 import           Text.ParserCombinators.ReadP
