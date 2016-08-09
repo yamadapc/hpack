@@ -1,4 +1,6 @@
 # hpack-convert
+[![Build Status](https://travis-ci.org/yamadapc/hpack-convert.svg?branch=hpack-convert)](https://travis-ci.org/yamadapc/hpack-convert)
+- - -
 Convert Cabal manifests into [hpack's package.yamls](https://github.com/sol/hpack).
 
 ## Installing from source
