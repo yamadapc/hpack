@@ -19,6 +19,13 @@ hpack-convert
 # This will convert your .cabal file into a `package.yaml`
 ```
 
+## Using the web-service without installing anything
+There's a simple web-service running `hpack-convert` on a free Heroku dyno, if
+it's awake, this command should convert your cabal file:
+```bash
+curl -F "cabalfile=@./`echo *.cabal`" https://hpack-convert.herokuapp.com
+```
+_Source-code at https://gitlab.com/yamadapc/hpack-convert-api_
 
 ## License
 MIT
