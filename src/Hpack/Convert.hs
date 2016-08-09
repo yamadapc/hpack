@@ -3,7 +3,9 @@
 {-# LANGUAGE RecordWildCards #-}
 module Hpack.Convert where
 
-import           Control.Applicative
+import           Prelude ()
+import           Prelude.Compat
+
 import           Data.Maybe
 import qualified Data.Version as Version
 import qualified Distribution.Compiler as Compiler
@@ -93,7 +95,7 @@ fromSourceRepos (_repo@Cabal.SourceRepo{..}:_more) =
     -- )
 
 fromDependency :: Cabal.Dependency -> Dependency
-fromDependency (Cabal.Dependency pn Cabal.AnyVersion) =
+fromDependency (Cabal.Dependency pn vr) | vr == Cabal.anyVersion =
     Dependency (show (Cabal.disp pn)) Nothing
 fromDependency (Cabal.Dependency pn vr) =
     Dependency (show (Cabal.disp pn <+> Cabal.disp vr)) Nothing

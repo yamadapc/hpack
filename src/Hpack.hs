@@ -8,7 +8,6 @@ module Hpack (
 , main
 #ifdef TEST
 , hpackWithVersion
-, parseVerbosity
 , extractVersion
 , parseVersion
 #endif
@@ -60,13 +59,6 @@ printHelp = do
     , "       hpack-convert --version"
     , "       hpack-convert --help"
     ]
-
-parseVerbosity :: [String] -> (Bool, [String])
-parseVerbosity xs = (verbose, ys)
-  where
-    silentFlag = "--silent"
-    verbose = not (silentFlag `elem` xs)
-    ys = filter (/= silentFlag) xs
 
 safeInit :: [a] -> [a]
 safeInit [] = []

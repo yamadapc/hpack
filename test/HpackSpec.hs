@@ -12,7 +12,7 @@ import           Test.Mockery.Directory
 import           Test.QuickCheck
 
 import           Hpack
-import           Hpack.Config
+import           Hpack.Config ()
 import           Hpack.Convert
 
 makeVersion :: [Int] -> Version
@@ -20,14 +20,6 @@ makeVersion v = Version v []
 
 spec :: Spec
 spec = do
-  describe "parseVerbosity" $ do
-    it "returns True by default" $ do
-      parseVerbosity ["foo"] `shouldBe` (True, ["foo"])
-
-    context "with --silent" $ do
-      it "returns False" $ do
-        parseVerbosity ["--silent"] `shouldBe` (False, [])
-
   describe "extractVersion" $ do
     it "extracts Hpack version from a cabal file" $ do
       let cabalFile = ["-- This file has been generated from package.yaml by hpack version 0.10.0."]
