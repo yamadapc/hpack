@@ -20,7 +20,7 @@ dependencies:
   - Glob
   - text
   - containers
-  - unordered-containers
+  - unordered-containers >= 0.2.7.1
   - yaml
   - bytestring
   - vector
@@ -41,7 +41,7 @@ executables:
     main: Main.hs
     source-dirs: driver
     dependencies:
-      - hpack-convert
+      - hpack-convert -any
       - aeson >= 0.8
 
 tests:
