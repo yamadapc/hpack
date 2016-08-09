@@ -3,7 +3,9 @@ Convert Cabal manifests into [hpack's package.yamls](https://github.com/sol/hpac
 
 ## Installing from source
 ```
-stack install hpack-convert
+git clone https://github.com/yamadapc/hpack-convert
+cd hpack-convert
+stack install
 ```
 
 ## Usage
