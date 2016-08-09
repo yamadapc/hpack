@@ -6,7 +6,9 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+#if __GLASGOW_HASKELL__ < 710
 {-# LANGUAGE OverlappingInstances #-}
+#endif
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -455,7 +457,11 @@ instance ToJSON [Section Executable] where
                                 , toJSON sect
                                 )
 
+#if __GLASGOW_HASKELL__ >= 710
 instance {-# OVERLAPS #-} ToJSON (Section ()) where
+#else
+instance ToJSON (Section ()) where
+#endif
   toJSON sect@Section{..} =
     (omitSection
       (mergeObjects
