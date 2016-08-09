@@ -172,7 +172,7 @@ spec = do
           ]
 
       it "retains section field order" $ do
-        renderPackage defaultRenderSettings 0 [] [("executable foo", ["default-language", "main-is", "ghc-options"])] package {packageExecutables = [(section $ executable "foo" "Main.hs") {sectionGhcOptions = ["-Wall", "-Werror"]}]} `shouldBe` unlines [
+        renderPackage defaultRenderSettings 0 [] [("executable foo", ["default-language", "main-is", "ghc-options"])] package {packageExecutables = [(section $ executable "foo" "Main.hs") {sectionGhcOptions = ["-Wall"]}]} `shouldBe` unlines [
             "name: foo"
           , "version: 0.0.0"
           , "build-type: Simple"
@@ -181,7 +181,7 @@ spec = do
           , "executable foo"
           , "  default-language: Haskell2010"
           , "  main-is: Main.hs"
-          , "  ghc-options: -Wall -Werror"
+          , "  ghc-options: -Wall"
           ]
 
 
@@ -204,7 +204,7 @@ spec = do
           ]
 
       it "includes GHC options" $ do
-        renderPackage_ package {packageExecutables = [(section $ executable "foo" "Main.hs") {sectionGhcOptions = ["-Wall", "-Werror"]}]} `shouldBe` unlines [
+        renderPackage_ package {packageExecutables = [(section $ executable "foo" "Main.hs") {sectionGhcOptions = ["-Wall"]}]} `shouldBe` unlines [
             "name: foo"
           , "version: 0.0.0"
           , "build-type: Simple"
@@ -212,7 +212,7 @@ spec = do
           , ""
           , "executable foo"
           , "  main-is: Main.hs"
-          , "  ghc-options: -Wall -Werror"
+          , "  ghc-options: -Wall"
           , "  default-language: Haskell2010"
           ]
 
