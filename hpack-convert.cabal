@@ -25,7 +25,7 @@ library
   build-depends:
       base >= 4.7 && < 5
     , base-compat >= 0.8
-    , Cabal
+    , Cabal >= 1.22
     , pretty
     , deepseq
     , directory
@@ -62,7 +62,7 @@ executable hpack-convert
   build-depends:
       base >= 4.7 && < 5
     , base-compat >= 0.8
-    , Cabal
+    , Cabal >= 1.22
     , pretty
     , deepseq
     , directory
@@ -89,7 +89,7 @@ test-suite spec
   build-depends:
       base >= 4.7 && < 5
     , base-compat >= 0.8
-    , Cabal
+    , Cabal >= 1.22
     , pretty
     , deepseq
     , directory
@@ -107,7 +107,7 @@ test-suite spec
     , temporary
     , mockery >= 0.3
     , interpolate
-    , aeson == 0.11.*
+    , aeson-qq
   other-modules:
       Helper
       Hpack.ConfigSpec

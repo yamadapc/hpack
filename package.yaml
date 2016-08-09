@@ -12,7 +12,7 @@ ghc-options: -Wall -fcontext-stack=100
 dependencies:
   - base >= 4.7 && < 5
   - base-compat >= 0.8
-  - Cabal
+  - Cabal >= 1.22
   - pretty
   - deepseq
   - directory
@@ -56,4 +56,4 @@ tests:
       - temporary
       - mockery >= 0.3
       - interpolate
-      - aeson == 0.11.*
+      - aeson-qq
