@@ -9,8 +9,8 @@ stack install
 ```
 
 ## Download a pre-built binary
-- [OSX](https://github.com/yamadapc/hpack-convert/releases/download/0.14.2/hpack-convert_x86_64-osx.tar.gz)
-- [Linux 64-bits (_Requires **libgmp**_)](https://github.com/yamadapc/hpack-convert/releases/download/0.14.2/hpack-convert_x86_64-linux.tar.gz)
+- [OSX](https://github.com/yamadapc/hpack-convert/releases/download/0.14.3/hpack-convert_x86_64-osx.tar.gz)
+- [Linux 64-bits (_Requires **libgmp**_)](https://github.com/yamadapc/hpack-convert/releases/download/0.14.3/hpack-convert_x86_64-linux.tar.gz)
 
 ## Usage
 ```bash
