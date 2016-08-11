@@ -14,6 +14,37 @@ license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
 
+extra-source-files:
+    ./test/data/cabal-init-minimal.cabal
+    ./test/data/cabal-init-minimal.cabal.yaml
+    ./test/data/cabal-init-with-benchmarks.cabal
+    ./test/data/cabal-init-with-benchmarks.cabal.yaml
+    ./test/data/cabal-init-with-conditionals-and-else.cabal
+    ./test/data/cabal-init-with-conditionals-and-else.cabal.yaml
+    ./test/data/cabal-init-with-conditionals-buildable.cabal
+    ./test/data/cabal-init-with-conditionals-buildable.cabal.yaml
+    ./test/data/cabal-init-with-conditionals-buildable2.cabal
+    ./test/data/cabal-init-with-conditionals-buildable2.cabal.yaml
+    ./test/data/cabal-init-with-conditionals-buildable3.cabal
+    ./test/data/cabal-init-with-conditionals-buildable3.cabal.yaml
+    ./test/data/cabal-init-with-conditionals-buildable4.cabal
+    ./test/data/cabal-init-with-conditionals-buildable4.cabal.yaml
+    ./test/data/cabal-init-with-conditionals-buildable5.cabal
+    ./test/data/cabal-init-with-conditionals-buildable5.cabal.yaml
+    ./test/data/cabal-init-with-conditionals.cabal
+    ./test/data/cabal-init-with-conditionals.cabal.yaml
+    ./test/data/cabal-init-with-executables.cabal
+    ./test/data/cabal-init-with-executables.cabal.yaml
+    ./test/data/cabal-init-with-tests.cabal
+    ./test/data/cabal-init-with-tests.cabal.yaml
+    ./test/data/ChangeLog.md
+    ./test/data/docs/stuff
+    ./test/data/getopt-generics.cabal
+    ./test/data/getopt-generics.cabal.yaml
+    ./test/data/hpack.cabal
+    ./test/data/hpack.cabal.yaml
+    ./test/data/LICENSE
+
 source-repository head
   type: git
   location: https://github.com/yamadapc/hpack-convert
