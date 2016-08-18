@@ -598,6 +598,7 @@ encodePackage pkg = Yaml.encodePretty config pkg
            , "homepage"
            , "git"
            , "bug-reports"
+           , "tested-with"
            , "main"
            , "source-dirs"
            , "extra-source-files"
