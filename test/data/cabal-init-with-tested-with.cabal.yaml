@@ -1,0 +1,12 @@
+name: cabal-init-minimal
+version: '0.1.0.0'
+author: Pedro Tacla Yamada
+maintainer: tacla.yamada@gmail.com
+license: PublicDomain
+tested-with: GHC==8.0.1 GHC==7.10.3 GHC==7.8.4 GHC==7.6.3 GHC==7.4.2
+extra-source-files:
+- ChangeLog.md
+dependencies:
+- base >=4.8 && <4.9
+library:
+  source-dirs: src

@@ -35,6 +35,8 @@ extra-source-files:
     ./test/data/cabal-init-with-conditionals.cabal.yaml
     ./test/data/cabal-init-with-executables.cabal
     ./test/data/cabal-init-with-executables.cabal.yaml
+    ./test/data/cabal-init-with-tested-with.cabal
+    ./test/data/cabal-init-with-tested-with.cabal.yaml
     ./test/data/cabal-init-with-tests.cabal
     ./test/data/cabal-init-with-tests.cabal.yaml
     ./test/data/ChangeLog.md

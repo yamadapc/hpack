@@ -1,22 +1,24 @@
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE NamedFieldPuns  #-}
+{-# LANGUAGE RankNTypes      #-}
 {-# LANGUAGE RecordWildCards #-}
 module Hpack.Convert where
 
-import           Prelude ()
+import           Data.Char
+import           Data.Monoid
+import           Prelude                               ()
 import           Prelude.Compat
 
 import           Data.Maybe
-import qualified Data.Version as Version
-import qualified Distribution.Compiler as Compiler
-import qualified Distribution.InstalledPackageInfo as Cabal
-import qualified Distribution.Package as Cabal
-import qualified Distribution.PackageDescription as Cabal
+import qualified Data.Version                          as Version
+import qualified Distribution.Compiler                 as Compiler
+import qualified Distribution.InstalledPackageInfo     as Cabal
+import qualified Distribution.Package                  as Cabal
+import qualified Distribution.PackageDescription       as Cabal
 import qualified Distribution.PackageDescription.Parse as Cabal
-import qualified Distribution.Text as Cabal
-import qualified Distribution.Version as Cabal
-import           Hpack.Config  hiding (package)
-import           Text.PrettyPrint (fsep, (<+>))
+import qualified Distribution.Text                     as Cabal
+import qualified Distribution.Version                  as Cabal
+import           Hpack.Config                          hiding (package)
+import           Text.PrettyPrint                      (fsep, (<+>))
 
 -- * Public API
 
@@ -40,8 +42,9 @@ fromPackageDescription Cabal.GenericPackageDescription{..} =
             , packageLicense = Just (show (Cabal.disp license))
             , packageLicenseFile = listToMaybe licenseFiles
             , packageTestedWith =
+                    map toUpper .
                     show .
-                    fsep . map (\(f, vr) -> Cabal.disp f <+> Cabal.disp vr ) <$>
+                    fsep . map (\(f, vr) -> Cabal.disp f <> Cabal.disp vr ) <$>
                     nullNothing testedWith
             , packageFlags =
                     map (\Cabal.MkFlag{..} ->
