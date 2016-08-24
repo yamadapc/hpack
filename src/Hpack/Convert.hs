@@ -88,7 +88,7 @@ fromSourceRepos (_repo@Cabal.SourceRepo{..}:_more) =
     -- (
     Just SourceRepository { sourceRepositoryUrl = fromMaybe "" repoLocation
                           -- TODO - this is broken (?)
-                          , sourceRepositorySubdir = repoSubdir
+                          , sourceRepositorySubdir = fmap processDir repoSubdir
                           }
     -- TODO - Warnings
     -- , case repoLocation of
@@ -194,7 +194,7 @@ fromCondition (Cabal.Lit b) = show b
 sectionWithBuildInfo :: a -> Cabal.BuildInfo -> Section a
 sectionWithBuildInfo d Cabal.BuildInfo{..} =
     Section { sectionData = d
-            , sectionSourceDirs = hsSourceDirs
+            , sectionSourceDirs = processDirs hsSourceDirs
             , sectionDependencies = map fromDependency targetBuildDepends
             , sectionDefaultExtensions = map (show . Cabal.disp)
                                              defaultExtensions
@@ -206,9 +206,9 @@ sectionWithBuildInfo d Cabal.BuildInfo{..} =
             , sectionCppOptions = cppOptions
             , sectionCCOptions = ccOptions
             , sectionCSources = cSources
-            , sectionExtraLibDirs = extraLibDirs
+            , sectionExtraLibDirs = processDirs extraLibDirs
             , sectionExtraLibraries = extraLibs
-            , sectionIncludeDirs = includeDirs
+            , sectionIncludeDirs = processDirs includeDirs
             , sectionInstallIncludes = installIncludes
             , sectionLdOptions = ldOptions
             , sectionBuildable = Just buildable
@@ -267,3 +267,13 @@ benchExeFromCondExecutableTup (name, Cabal.CondNode Cabal.Benchmark{..} _ _) =
 -- Just [1, 2, 3]
 nullNothing :: [a] -> Maybe [a]
 nullNothing s = const s <$> listToMaybe s
+
+processDirs :: [String] -> [String]
+processDirs = map processDir
+
+-- | Replaces @.@ with @./.@
+--
+-- See https://github.com/sol/hpack/issues/119
+processDir :: String -> String
+processDir "." = "./."
+processDir d = d
