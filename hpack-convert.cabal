@@ -33,6 +33,8 @@ extra-source-files:
     ./test/data/cabal-init-with-conditionals-buildable5.cabal.yaml
     ./test/data/cabal-init-with-conditionals.cabal
     ./test/data/cabal-init-with-conditionals.cabal.yaml
+    ./test/data/cabal-init-with-dot.cabal
+    ./test/data/cabal-init-with-dot.cabal.yaml
     ./test/data/cabal-init-with-executables.cabal
     ./test/data/cabal-init-with-executables.cabal.yaml
     ./test/data/cabal-init-with-tested-with.cabal
