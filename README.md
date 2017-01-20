@@ -27,7 +27,7 @@ it's awake, this command should convert your cabal file:
 ```bash
 curl -F "cabalfile=@./`echo *.cabal`" https://hpack-convert.herokuapp.com
 ```
-_Source-code at https://gitlab.com/yamadapc/hpack-convert-api_
+_Source-code at https://github.com/yamadapc/hpack-convert-api_
 
 ## License
 MIT
