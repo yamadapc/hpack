@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.14.0.
+-- This file has been generated from package.yaml by hpack version 0.17.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -72,7 +72,7 @@ library
     , yaml
     , bytestring
     , vector
-    , aeson == 0.11.*
+    , aeson
   exposed-modules:
       Hpack
       Hpack.Convert
@@ -109,7 +109,7 @@ executable hpack-convert
     , yaml
     , bytestring
     , vector
-    , aeson == 0.11.*
+    , aeson
     , hpack-convert
   default-language: Haskell2010
 
@@ -118,7 +118,7 @@ test-suite spec
   main-is: Spec.hs
   hs-source-dirs:
       test
-    , src
+      src
   ghc-options: -Wall -fcontext-stack=100
   cpp-options: -DTEST
   build-depends:
@@ -136,7 +136,7 @@ test-suite spec
     , yaml
     , bytestring
     , vector
-    , aeson == 0.11.*
+    , aeson
     , hspec == 2.*
     , QuickCheck
     , temporary

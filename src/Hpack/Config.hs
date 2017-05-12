@@ -118,7 +118,11 @@ jsonOptions name = defaultOptions { fieldLabelModifier = hyphenize name
                                   , omitNothingFields = True
                                   }
 
+#if MIN_VERSION_aeson(1,0,0)
+genericToJSON_ :: forall a. (Generic a, GToJSON Zero (Rep a), HasTypeName a) => a -> Value
+#else
 genericToJSON_ :: forall a. (Generic a, GToJSON (Rep a), HasTypeName a) => a -> Value
+#endif
 genericToJSON_ =
     removeEmptyObjects .
     removeEmptyArrays .
@@ -135,7 +139,11 @@ removeEmptyArrays :: Value -> Value
 removeEmptyArrays (Object o) = Object $ HashMap.filter (/= Array mempty) o
 removeEmptyArrays v = v
 
+#if MIN_VERSION_aeson(1,0,0)
+genericParseJSON_ :: forall a. (Generic a, GFromJSON Zero (Rep a), HasTypeName a) => Value -> Parser a
+#else
 genericParseJSON_ :: forall a. (Generic a, GFromJSON (Rep a), HasTypeName a) => Value -> Parser a
+#endif
 genericParseJSON_ = genericParseJSON (jsonOptions name)
   where
     name :: String
@@ -451,7 +459,11 @@ mergeObjects (Object o1) _ = Object o1
 mergeObjects _ (Object o2) = Object o2
 mergeObjects v _ = v
 
-instance ToJSON [Section Executable] where
+#if __GLASGOW_HASKELL__ >= 710
+instance {-# OVERLAPS #-} ToJSON [Section Executable] where
+#else
+instance  ToJSON [Section Executable] where
+#endif
   toJSON ss = Object $
       HashMap.fromList $ map helper ss
     where
@@ -487,8 +499,13 @@ instance ToJSON (Section ()) where
           s {sectionBuildable = Nothing}
       omitRedundantBuildable s = s
 
+#if MIN_VERSION_aeson(1,0,0)
+instance (Generic (Section a), GToJSON Zero (Rep (Section a)), HasTypeName (Section a),
+          ToJSON a) => ToJSON (Section a) where
+#else
 instance (Generic (Section a), GToJSON (Rep (Section a)), HasTypeName (Section a),
           ToJSON a) => ToJSON (Section a) where
+#endif
   toJSON sect@Section{..} =
     omitBuildableTrue (omitSection
       (mergeObjects
@@ -545,7 +562,11 @@ instance ToJSON Executable where
 instance ToJSON Library where
   toJSON = genericToJSON_
 
+#if __GLASGOW_HASKELL__ >= 710
+instance {-# OVERLAPS #-} ToJSON [Flag] where
+#else
 instance ToJSON [Flag] where
+#endif
   toJSON fs = Object $
       HashMap.fromList $ map helper fs
     where

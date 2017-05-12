@@ -1,3 +1,9 @@
+test: FORCE
+	stack build --stack-yaml ./stack-5.yaml
+	stack test --stack-yaml ./stack-5.yaml
+	stack build
+	stack test
+
 docker-build:
 	for dockerfile in dockerfiles/*; do docker build -f $$dockerfile . ; done
 
