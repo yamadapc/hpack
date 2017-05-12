@@ -8,6 +8,7 @@ import           Data.Monoid
 import           Prelude                               ()
 import           Prelude.Compat
 
+import           Data.List.Split                       (splitOn)
 import           Data.Maybe
 import qualified Data.Version                          as Version
 import qualified Distribution.Compiler                 as Compiler
@@ -19,7 +20,7 @@ import qualified Distribution.Text                     as Cabal
 import qualified Distribution.Version                  as Cabal
 import           Hpack.Config                          hiding (package)
 import           Text.PrettyPrint                      (fsep, (<+>))
-
+ 
 -- * Public API
 
 -- | Reads a 'Package' from cabal's 'GenericPackageDescription' representation
@@ -36,9 +37,9 @@ fromPackageDescription Cabal.GenericPackageDescription{..} =
             , packageBugReports = nullNothing bugReports
             , packageCategory = nullNothing category
             , packageStability = nullNothing stability
-            , packageAuthor = maybeToList (nullNothing author)
-            , packageMaintainer = maybeToList (nullNothing maintainer)
-            , packageCopyright = maybeToList (nullNothing copyright)
+            , packageAuthor = maybe [] parseCommaSep (nullNothing author)
+            , packageMaintainer = maybe [] parseCommaSep (nullNothing maintainer)
+            , packageCopyright = maybe [] parseCommaSep (nullNothing copyright)
             , packageLicense = Just (show (Cabal.disp license))
             , packageLicenseFile = listToMaybe licenseFiles
             , packageTestedWith =
@@ -277,3 +278,15 @@ processDirs = map processDir
 processDir :: String -> String
 processDir "." = "./."
 processDir d = d
+
+-- | Parse comma separated list, stripping whitespace
+parseCommaSep :: String -> [String]
+parseCommaSep s =
+  -- separate on commas
+  -- strip leading and trailing whitespace
+  fmap trimEnds (splitOn "," s)
+
+-- | Trim leading and trailing whitespace
+trimEnds :: String -> String
+trimEnds = f . f
+  where f = reverse . dropWhile isSpace

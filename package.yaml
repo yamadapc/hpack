@@ -1,5 +1,5 @@
 name: hpack-convert
-version: '0.14.7'
+version: '0.15.0'
 synopsis: Convert Cabal manifests into hpack's package.yamls
 maintainer: Pedro Tacla Yamada <tacla.yamada@gmail.com>
 license: MIT
@@ -26,6 +26,7 @@ dependencies:
   - bytestring
   - vector
   - aeson
+  - split
 
 library:
   source-dirs: src

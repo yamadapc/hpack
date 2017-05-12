@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:           hpack-convert
-version:        0.14.7
+version:        0.15.0
 synopsis:       Convert Cabal manifests into hpack's package.yamls
 category:       Development
 homepage:       https://github.com/yamadapc/hpack-convert#readme
@@ -73,6 +73,7 @@ library
     , bytestring
     , vector
     , aeson
+    , split
   exposed-modules:
       Hpack.Convert
   other-modules:
@@ -111,6 +112,7 @@ executable hpack-convert
     , bytestring
     , vector
     , aeson
+    , split
   other-modules:
       Hpack
       Hpack.Config
@@ -149,6 +151,7 @@ test-suite spec
     , bytestring
     , vector
     , aeson
+    , split
     , hspec == 2.*
     , QuickCheck
     , temporary
