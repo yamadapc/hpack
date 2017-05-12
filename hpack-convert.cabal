@@ -74,18 +74,18 @@ library
     , vector
     , aeson
   exposed-modules:
-      Hpack
       Hpack.Convert
-      Hpack.Config
-      Hpack.Run
-      Hpack.Yaml
   other-modules:
+      Hpack
+      Hpack.Config
       Hpack.Convert.Run
       Hpack.FormattingHints
       Hpack.GenericsUtil
       Hpack.Haskell
       Hpack.Render
+      Hpack.Run
       Hpack.Util
+      Hpack.Yaml
       Paths_hpack_convert
   default-language: Haskell2010
 
@@ -93,6 +93,7 @@ executable hpack-convert
   main-is: Main.hs
   hs-source-dirs:
       driver
+      src
   ghc-options: -Wall -fcontext-stack=100
   build-depends:
       base >= 4.7 && < 5
@@ -110,7 +111,18 @@ executable hpack-convert
     , bytestring
     , vector
     , aeson
-    , hpack-convert
+  other-modules:
+      Hpack
+      Hpack.Config
+      Hpack.Convert
+      Hpack.Convert.Run
+      Hpack.FormattingHints
+      Hpack.GenericsUtil
+      Hpack.Haskell
+      Hpack.Render
+      Hpack.Run
+      Hpack.Util
+      Hpack.Yaml
   default-language: Haskell2010
 
 test-suite spec
