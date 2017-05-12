@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:           hpack-convert
-version:        0.14.6
+version:        0.14.7
 synopsis:       Convert Cabal manifests into hpack's package.yamls
 category:       Development
 homepage:       https://github.com/yamadapc/hpack-convert#readme
