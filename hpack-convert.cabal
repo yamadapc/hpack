@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:           hpack-convert
-version:        0.14.6
+version:        0.15.0
 synopsis:       Convert Cabal manifests into hpack's package.yamls
 category:       Development
 homepage:       https://github.com/yamadapc/hpack-convert#readme
@@ -56,7 +56,7 @@ source-repository head
 library
   hs-source-dirs:
       src
-  ghc-options: -Wall -fcontext-stack=100
+  ghc-options: -Wall -freduction-depth=100
   build-depends:
       base >= 4.7 && < 5
     , base-compat >= 0.8
@@ -94,7 +94,7 @@ executable hpack-convert
   main-is: Main.hs
   hs-source-dirs:
       driver
-  ghc-options: -Wall -fcontext-stack=100
+  ghc-options: -Wall -freduction-depth=100
   build-depends:
       base >= 4.7 && < 5
     , base-compat >= 0.8
@@ -121,7 +121,7 @@ test-suite spec
   hs-source-dirs:
       test
       src
-  ghc-options: -Wall -fcontext-stack=100
+  ghc-options: -Wall -freduction-depth=100
   cpp-options: -DTEST
   build-depends:
       base >= 4.7 && < 5
