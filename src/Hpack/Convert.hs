@@ -27,6 +27,11 @@ import           Text.PrettyPrint                      (fsep, (<+>))
 fromPackageDescription :: Cabal.GenericPackageDescription -> Package
 fromPackageDescription Cabal.GenericPackageDescription{..} =
     let Cabal.PackageDescription{..} = packageDescription
+        _ = (Version.showVersion . Cabal.specVersion) packageDescription
+        _ = extraTmpFiles
+        _ = extraDocFiles
+        _ = buildType
+        _ = fmap processDir (nullNothing dataDir)
     in
     Package { packageName = Cabal.unPackageName (Cabal.pkgName package)
             , packageVersion = Version.showVersion (Cabal.pkgVersion package)
@@ -192,31 +197,39 @@ fromCondition (Cabal.Lit b) = show b
 
 -- | Builds a 'Package' 'Section' from a data entity and a 'BuildInfo' entity
 sectionWithBuildInfo :: a -> Cabal.BuildInfo -> Section a
-sectionWithBuildInfo d Cabal.BuildInfo{..} =
-    Section { sectionData = d
-            , sectionSourceDirs = processDirs hsSourceDirs
-            , sectionDependencies = map fromDependency targetBuildDepends
-            , sectionDefaultExtensions = map (show . Cabal.disp)
-                                             defaultExtensions
-            , sectionOtherExtensions = map (show . Cabal.disp) otherExtensions
-            , sectionGhcOptions = fromMaybe [] $
-                lookup Compiler.GHC options
-            , sectionGhcProfOptions = fromMaybe [] $
-                lookup Compiler.GHC profOptions
-            , sectionCppOptions = cppOptions
-            , sectionCCOptions = ccOptions
-            , sectionCSources = cSources
-            , sectionExtraLibDirs = processDirs extraLibDirs
-            , sectionExtraLibraries = extraLibs
-            , sectionIncludeDirs = processDirs includeDirs
-            , sectionInstallIncludes = installIncludes
-            , sectionLdOptions = ldOptions
-            , sectionBuildable = Just buildable
-            -- TODO ^^ ????
-            , sectionConditionals = []
-            -- TODO ^^ ????
-            , sectionBuildTools = map fromDependency buildTools
-            }
+sectionWithBuildInfo d buildInfo@Cabal.BuildInfo{..} =
+    let _ = map fromDependency pkgconfigDepends
+        _ = frameworks
+        _ = fmap (show . Cabal.disp) defaultLanguage
+        _ = map (show . Cabal.disp) otherLanguages
+        _ = extraGHCiLibs
+        _ = Cabal.hcSharedOptions Compiler.GHC buildInfo
+        _ = includes
+        -- above are waiting for fields to receive these values
+    in Section { sectionData = d
+               , sectionSourceDirs = processDirs hsSourceDirs
+               , sectionDependencies = map fromDependency targetBuildDepends
+               , sectionDefaultExtensions = map (show . Cabal.disp)
+                                                defaultExtensions
+               , sectionOtherExtensions = map (show . Cabal.disp) otherExtensions
+               , sectionGhcOptions = fromMaybe [] $
+                   lookup Compiler.GHC options
+               , sectionGhcProfOptions = fromMaybe [] $
+                   lookup Compiler.GHC profOptions
+               , sectionCppOptions = cppOptions
+               , sectionCCOptions = ccOptions
+               , sectionCSources = cSources
+               , sectionExtraLibDirs = processDirs extraLibDirs
+               , sectionExtraLibraries = extraLibs
+               , sectionIncludeDirs = processDirs includeDirs
+               , sectionInstallIncludes = installIncludes
+               , sectionLdOptions = ldOptions
+               , sectionBuildable = Just buildable
+               -- TODO ^^ ????
+               , sectionConditionals = []
+               -- TODO ^^ ????
+               , sectionBuildTools = map fromDependency buildTools
+               }
 
 libFromCondLibrary :: Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Library -> Maybe Library
 libFromCondLibrary (Cabal.CondNode (Cabal.Library{..}) _ _) = do
