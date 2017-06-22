@@ -48,6 +48,8 @@ extra-source-files:
     ./test/data/hpack.cabal
     ./test/data/hpack.cabal.yaml
     ./test/data/LICENSE
+    ./test/data/quoted-options.cabal
+    ./test/data/quoted-options.cabal.yaml
 
 source-repository head
   type: git
