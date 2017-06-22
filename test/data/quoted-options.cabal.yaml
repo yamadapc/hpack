@@ -5,10 +5,10 @@ maintainer: tacla.yamada@gmail.com
 license: PublicDomain
 extra-source-files:
 - ChangeLog.md
+ghc-options:
+- -rtsopts
+- ! '"-with-rtsopts=-N15 -H4G"'
 dependencies:
 - base >=4.8 && <4.9
 library:
   source-dirs: src
-  ghc-options:
-  - -rtsopts
-  - "\"-with-rtsopts=-N15 -H4G\""

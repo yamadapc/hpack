@@ -20,7 +20,7 @@ import qualified Distribution.Text                     as Cabal
 import qualified Distribution.Version                  as Cabal
 import           Hpack.Config                          hiding (package)
 import           Text.PrettyPrint                      (fsep, (<+>))
- 
+
 -- * Public API
 
 -- | Reads a 'Package' from cabal's 'GenericPackageDescription' representation
@@ -70,7 +70,7 @@ fromPackageDescription Cabal.GenericPackageDescription{..} =
 fromPackageDescriptionString :: String -> Either ConvertError Package
 fromPackageDescriptionString pkgStr =
     case Cabal.parsePackageDescription pkgStr of
-        Cabal.ParseFailed e -> Left (ConvertCabalParseError e)
+        Cabal.ParseFailed e  -> Left (ConvertCabalParseError e)
         Cabal.ParseOk _ gpkg -> Right (fromPackageDescription gpkg)
 
 data ConvertError = ConvertCabalParseError Cabal.PError
@@ -200,8 +200,12 @@ sectionWithBuildInfo d Cabal.BuildInfo{..} =
             , sectionDefaultExtensions = map (show . Cabal.disp)
                                              defaultExtensions
             , sectionOtherExtensions = map (show . Cabal.disp) otherExtensions
-            , sectionGhcOptions = fromMaybe [] $
-                lookup Compiler.GHC options
+            , sectionGhcOptions = map (\l -> case words l of
+                                              []  -> ""
+                                              [x] -> x
+                                              _   -> ensureQuoted l) $
+                                  fromMaybe [] $
+                                  lookup Compiler.GHC options
             , sectionGhcProfOptions = fromMaybe [] $
                 lookup Compiler.GHC profOptions
             , sectionCppOptions = cppOptions
@@ -277,7 +281,7 @@ processDirs = map processDir
 -- See https://github.com/sol/hpack/issues/119
 processDir :: String -> String
 processDir "." = "./."
-processDir d = d
+processDir d   = d
 
 -- | Parse comma separated list, stripping whitespace
 parseCommaSep :: String -> [String]
@@ -290,3 +294,14 @@ parseCommaSep s =
 trimEnds :: String -> String
 trimEnds = f . f
   where f = reverse . dropWhile isSpace
+
+ensureQuoted :: String -> String
+ensureQuoted l =
+  if isQuoted l
+    then l
+    else "\"" <> l <> "\""
+
+isQuoted :: String -> Bool
+isQuoted s = testQuote '\'' || testQuote '\"'
+  where
+    testQuote q = head s == q && last s == q
