@@ -17,6 +17,9 @@ import qualified Distribution.Package                  as Cabal
 import qualified Distribution.PackageDescription       as Cabal
 import qualified Distribution.PackageDescription.Parse as Cabal
 import qualified Distribution.Text                     as Cabal
+import qualified Distribution.Types.UnqualComponentName as Cabal
+import qualified Distribution.Types.LegacyExeDependency as Cabal
+import qualified Distribution.Types.CondTree            as Cabal
 import qualified Distribution.Version                  as Cabal
 import           Hpack.Config                          hiding (package)
 import           Text.PrettyPrint                      (fsep, (<+>))
@@ -30,7 +33,7 @@ fromPackageDescription Cabal.GenericPackageDescription{..} =
     let Cabal.PackageDescription{..} = packageDescription
     in
     Package { packageName = Cabal.unPackageName (Cabal.pkgName package)
-            , packageVersion = Version.showVersion (Cabal.pkgVersion package)
+            , packageVersion = Cabal.showVersion (Cabal.pkgVersion package)
             , packageSynopsis = nullNothing synopsis
             , packageDescription = nullNothing description
             , packageHomepage = nullNothing homepage
@@ -49,7 +52,7 @@ fromPackageDescription Cabal.GenericPackageDescription{..} =
                     nullNothing testedWith
             , packageFlags =
                     map (\Cabal.MkFlag{..} ->
-                             let Cabal.FlagName fn = flagName
+                             let fn = Cabal.unFlagName flagName
                              in Flag { flagName = fn
                                      , flagDescription =
                                              nullNothing flagDescription
@@ -104,6 +107,12 @@ fromDependency (Cabal.Dependency pn vr) | vr == Cabal.anyVersion =
 fromDependency (Cabal.Dependency pn vr) =
     Dependency (show (Cabal.disp pn <+> Cabal.disp vr)) Nothing
 
+fromLegacyDependency :: Cabal.LegacyExeDependency -> Dependency
+fromLegacyDependency (Cabal.LegacyExeDependency pn vr) | vr == Cabal.anyVersion =
+    Dependency pn Nothing
+fromLegacyDependency (Cabal.LegacyExeDependency pn vr) =
+    Dependency (show (pn ++ show vr)) Nothing
+
 fromCondLibrary :: Maybe (Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Library) -> Maybe (Section Library)
 fromCondLibrary mcondLibrary = do
     condLibrary@(Cabal.CondNode Cabal.Library{libBuildInfo} _ components) <- mcondLibrary
@@ -112,30 +121,30 @@ fromCondLibrary mcondLibrary = do
         { sectionConditionals = map fromCondComponentHasBuildInfo components
         }
 
-fromCondExecutables :: [(String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Executable)] -> [Section Executable]
+fromCondExecutables :: [(Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Executable)] -> [Section Executable]
 fromCondExecutables = map fromCondExecutableTup
 
-fromCondTestSuites :: [(String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.TestSuite)] -> [Section Executable]
+fromCondTestSuites :: [(Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.TestSuite)] -> [Section Executable]
 fromCondTestSuites = mapMaybe fromCondTestSuiteTup
 
-fromCondBenchmarks :: [(String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Benchmark)] -> [Section Executable]
+fromCondBenchmarks :: [(Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Benchmark)] -> [Section Executable]
 fromCondBenchmarks = mapMaybe fromCondBenchmarkTup
 
-fromCondExecutableTup :: (String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Executable) -> Section Executable
+fromCondExecutableTup :: (Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Executable) -> Section Executable
 fromCondExecutableTup etup@(_, Cabal.CondNode Cabal.Executable{buildInfo} _ components) =
     let e = exeFromCondExecutableTup etup
     in (sectionWithBuildInfo e buildInfo)
        { sectionConditionals = map fromCondComponentHasBuildInfo components
        }
 
-fromCondTestSuiteTup :: (String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.TestSuite) -> Maybe (Section Executable)
+fromCondTestSuiteTup :: (Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.TestSuite) -> Maybe (Section Executable)
 fromCondTestSuiteTup ttup@(_, Cabal.CondNode Cabal.TestSuite{testBuildInfo} _ components) = do
     te <- testExeFromCondExecutableTup ttup
     return (sectionWithBuildInfo te testBuildInfo)
        { sectionConditionals = map fromCondComponentHasBuildInfo components
        }
 
-fromCondBenchmarkTup :: (String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Benchmark) -> Maybe (Section Executable)
+fromCondBenchmarkTup :: (Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Benchmark) -> Maybe (Section Executable)
 fromCondBenchmarkTup btup@(_, Cabal.CondNode Cabal.Benchmark{benchmarkBuildInfo} _ components) = do
     be <- benchExeFromCondExecutableTup btup
     return (sectionWithBuildInfo be benchmarkBuildInfo)
@@ -166,12 +175,9 @@ fromCondHasBuildInfo (Cabal.CondNode hbi _ components) =
        }
 
 fromCondComponentHasBuildInfo :: (HasBuildInfo a)
-    => ( Cabal.Condition Cabal.ConfVar
-       , Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a
-       , Maybe (Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] a)
-       )
+    => Cabal.CondBranch Cabal.ConfVar [Cabal.Dependency] a
     -> Conditional
-fromCondComponentHasBuildInfo (cond, ifTree, elseTree) =
+fromCondComponentHasBuildInfo (Cabal.CondBranch cond ifTree elseTree) =
     Conditional { conditionalCondition = fromCondition cond
                 , conditionalThen = fromCondHasBuildInfo ifTree
                 , conditionalElse = fromCondHasBuildInfo <$> elseTree
@@ -180,7 +186,7 @@ fromCondComponentHasBuildInfo (cond, ifTree, elseTree) =
 fromCondition :: Cabal.Condition Cabal.ConfVar -> String
 fromCondition (Cabal.Var c) = case c of
     Cabal.OS os -> "os(" ++ show (Cabal.disp os) ++ ")"
-    Cabal.Flag (Cabal.FlagName fl) -> "flag(" ++ fl ++ ")"
+    Cabal.Flag fl -> "flag(" ++ Cabal.unFlagName fl ++ ")"
     Cabal.Arch ar -> "arch(" ++ show (Cabal.disp ar) ++ ")"
     Cabal.Impl cc vr -> "impl(" ++ show (Cabal.disp cc <+> Cabal.disp vr)  ++ ")"
 fromCondition (Cabal.CNot c) = "!(" ++ fromCondition c ++ ")"
@@ -220,7 +226,7 @@ sectionWithBuildInfo d Cabal.BuildInfo{..} =
             -- TODO ^^ ????
             , sectionConditionals = []
             -- TODO ^^ ????
-            , sectionBuildTools = map fromDependency buildTools
+            , sectionBuildTools = map fromLegacyDependency buildTools
             }
 
 libFromCondLibrary :: Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Library -> Maybe Library
@@ -234,30 +240,30 @@ libFromCondLibrary (Cabal.CondNode (Cabal.Library{..}) _ _) = do
                                                     reexportedModules
                    }
 
-exeFromCondExecutableTup :: (String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Executable) -> Executable
+exeFromCondExecutableTup :: (Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Executable) -> Executable
 exeFromCondExecutableTup (name, Cabal.CondNode Cabal.Executable{..} _ _) =
-    Executable { executableName = name
+    Executable { executableName = Cabal.unUnqualComponentName name
                , executableMain = modulePath
                , executableOtherModules = map (show . Cabal.disp)
                                               (Cabal.otherModules buildInfo)
                }
 
-testExeFromCondExecutableTup :: (String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.TestSuite) -> Maybe Executable
+testExeFromCondExecutableTup :: (Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.TestSuite) -> Maybe Executable
 testExeFromCondExecutableTup (name, Cabal.CondNode Cabal.TestSuite{..} _ _) =
     case testInterface of
         Cabal.TestSuiteExeV10 _ mainIs -> Just
-            Executable { executableName = name
+            Executable { executableName = Cabal.unUnqualComponentName name
                        , executableMain = mainIs
                        , executableOtherModules = map (show . Cabal.disp)
                                                   (Cabal.otherModules testBuildInfo)
                        }
         _ -> Nothing
 
-benchExeFromCondExecutableTup :: (String, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Benchmark) -> Maybe Executable
+benchExeFromCondExecutableTup :: (Cabal.UnqualComponentName, Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Benchmark) -> Maybe Executable
 benchExeFromCondExecutableTup (name, Cabal.CondNode Cabal.Benchmark{..} _ _) =
     case benchmarkInterface of
         Cabal.BenchmarkExeV10 _ mainIs -> Just
-            Executable { executableName = name
+            Executable { executableName = Cabal.unUnqualComponentName name
                        , executableMain = mainIs
                        , executableOtherModules = map (show . Cabal.disp)
                                                   (Cabal.otherModules benchmarkBuildInfo)
