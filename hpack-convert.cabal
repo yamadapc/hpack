@@ -1,6 +1,10 @@
--- This file has been generated from package.yaml by hpack version 0.17.0.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: c177f04ff11824d1344862168c32a92ce98a8ae69febcb00668765c763a3988e
 
 name:           hpack-convert
 version:        1.0.1
@@ -12,8 +16,6 @@ maintainer:     Pedro Tacla Yamada <tacla.yamada@gmail.com>
 license:        MIT
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
-
 extra-source-files:
     ./test/data/cabal-init-minimal.cabal
     ./test/data/cabal-init-minimal.cabal.yaml
@@ -60,22 +62,22 @@ library
       src
   ghc-options: -Wall -fcontext-stack=100
   build-depends:
-      base >= 4.7 && < 5
-    , base-compat >= 0.8
-    , Cabal >= 1.22
-    , pretty
+      Cabal
+    , Glob
+    , aeson
+    , base
+    , base-compat
+    , bytestring
+    , containers
     , deepseq
     , directory
     , filepath
-    , Glob
-    , text
-    , containers
-    , unordered-containers >= 0.2.7.1
-    , yaml
-    , bytestring
-    , vector
-    , aeson
+    , pretty
     , split
+    , text
+    , unordered-containers
+    , vector
+    , yaml
   exposed-modules:
       Hpack.Convert
   other-modules:
@@ -99,22 +101,22 @@ executable hpack-convert
       src
   ghc-options: -Wall -fcontext-stack=100
   build-depends:
-      base >= 4.7 && < 5
-    , base-compat >= 0.8
-    , Cabal >= 1.22
-    , pretty
+      Cabal
+    , Glob
+    , aeson
+    , base
+    , base-compat
+    , bytestring
+    , containers
     , deepseq
     , directory
     , filepath
-    , Glob
-    , text
-    , containers
-    , unordered-containers >= 0.2.7.1
-    , yaml
-    , bytestring
-    , vector
-    , aeson
+    , pretty
     , split
+    , text
+    , unordered-containers
+    , vector
+    , yaml
   other-modules:
       Hpack
       Hpack.Config
@@ -127,6 +129,7 @@ executable hpack-convert
       Hpack.Run
       Hpack.Util
       Hpack.Yaml
+      Paths_hpack_convert
   default-language: Haskell2010
 
 test-suite spec
@@ -138,28 +141,28 @@ test-suite spec
   ghc-options: -Wall -fcontext-stack=100
   cpp-options: -DTEST
   build-depends:
-      base >= 4.7 && < 5
-    , base-compat >= 0.8
-    , Cabal >= 1.22
-    , pretty
+      Cabal
+    , Glob
+    , QuickCheck
+    , aeson
+    , aeson-qq
+    , base
+    , base-compat
+    , bytestring
+    , containers
     , deepseq
     , directory
     , filepath
-    , Glob
-    , text
-    , containers
-    , unordered-containers >= 0.2.7.1
-    , yaml
-    , bytestring
-    , vector
-    , aeson
-    , split
-    , hspec == 2.*
-    , QuickCheck
-    , temporary
-    , mockery >= 0.3
+    , hspec ==2.*
     , interpolate
-    , aeson-qq
+    , mockery >=0.3
+    , pretty
+    , split
+    , temporary
+    , text
+    , unordered-containers
+    , vector
+    , yaml
   other-modules:
       Helper
       Hpack.ConfigSpec
@@ -182,4 +185,5 @@ test-suite spec
       Hpack.Run
       Hpack.Util
       Hpack.Yaml
+      Paths_hpack_convert
   default-language: Haskell2010
