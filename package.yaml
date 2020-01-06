@@ -11,9 +11,9 @@ extra-source-files:
   - ./test/data/**/*
 
 dependencies:
-  - base >= 4.7 && < 5
-  - base-compat >= 0.8
-  - Cabal >= 1.22
+  - base
+  - base-compat
+  - Cabal
   - pretty
   - deepseq
   - directory
@@ -21,7 +21,7 @@ dependencies:
   - Glob
   - text
   - containers
-  - unordered-containers >= 0.2.7.1
+  - unordered-containers
   - yaml
   - bytestring
   - vector
@@ -30,7 +30,6 @@ dependencies:
 
 library:
   source-dirs: src
-  dependencies:
   exposed-modules:
     - Hpack.Convert
 
