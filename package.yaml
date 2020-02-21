@@ -6,7 +6,7 @@ license: MIT
 github: yamadapc/hpack-convert
 category: Development
 
-ghc-options: -Wall -fcontext-stack=100
+ghc-options: -Wall -freduction-depth=100
 extra-source-files:
   - ./test/data/**/*
 
@@ -30,7 +30,6 @@ dependencies:
 
 library:
   source-dirs: src
-  dependencies:
   exposed-modules:
     - Hpack.Convert
 
