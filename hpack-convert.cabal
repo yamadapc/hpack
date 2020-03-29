@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4794b90b9a3b0d9b99da7c29255e6062b59cfce3da83ccb1dfa4abe46a90d253
+-- hash: 525f13497c3d93541a38db7fa16b1f5ce04bb27bb9e880250fcf5f1588599bbf
 
 name:           hpack-convert
-version:        1.0.1
+version:        1.0.3
 synopsis:       Convert Cabal manifests into hpack's package.yamls
 category:       Development
 homepage:       https://github.com/yamadapc/hpack-convert#readme
