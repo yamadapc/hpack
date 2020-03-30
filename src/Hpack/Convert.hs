@@ -3,6 +3,7 @@
 {-# LANGUAGE RecordWildCards #-}
 module Hpack.Convert where
 
+import qualified Data.ByteString.Char8                 as BS
 import           Data.Char
 import           Data.Monoid
 import           Prelude                               ()
@@ -15,7 +16,10 @@ import qualified Distribution.Compiler                 as Compiler
 import qualified Distribution.InstalledPackageInfo     as Cabal
 import qualified Distribution.Package                  as Cabal
 import qualified Distribution.PackageDescription       as Cabal
-import qualified Distribution.PackageDescription.Parse as Cabal
+import qualified Distribution.PackageDescription.Parsec as Cabal
+import qualified Distribution.Parsec.Error             as Cabal
+import qualified Distribution.Pretty                   as Cabal
+import qualified Distribution.Simple                   as Cabal
 import qualified Distribution.Text                     as Cabal
 import qualified Distribution.Types.UnqualComponentName as Cabal
 import qualified Distribution.Types.LegacyExeDependency as Cabal
@@ -33,7 +37,7 @@ fromPackageDescription Cabal.GenericPackageDescription{..} =
     let Cabal.PackageDescription{..} = packageDescription
     in
     Package { packageName = Cabal.unPackageName (Cabal.pkgName package)
-            , packageVersion = Cabal.showVersion (Cabal.pkgVersion package)
+            , packageVersion = Cabal.prettyShow (Cabal.pkgVersion package)
             , packageSynopsis = nullNothing synopsis
             , packageDescription = nullNothing description
             , packageHomepage = nullNothing homepage
@@ -43,12 +47,12 @@ fromPackageDescription Cabal.GenericPackageDescription{..} =
             , packageAuthor = maybe [] parseCommaSep (nullNothing author)
             , packageMaintainer = maybe [] parseCommaSep (nullNothing maintainer)
             , packageCopyright = maybe [] parseCommaSep (nullNothing copyright)
-            , packageLicense = Just (show (Cabal.disp license))
+            , packageLicense = Just (show $ Cabal.pretty (either Cabal.licenseFromSPDX id licenseRaw))
             , packageLicenseFile = listToMaybe licenseFiles
             , packageTestedWith =
                     map toUpper .
                     show .
-                    fsep . map (\(f, vr) -> Cabal.disp f <> Cabal.disp vr ) <$>
+                    fsep . map (\(f, vr) -> Cabal.pretty f <> Cabal.pretty vr ) <$>
                     nullNothing testedWith
             , packageFlags =
                     map (\Cabal.MkFlag{..} ->
@@ -72,9 +76,12 @@ fromPackageDescription Cabal.GenericPackageDescription{..} =
 -- | Reads a 'Package' from a @.cabal@ manifest string
 fromPackageDescriptionString :: String -> Either ConvertError Package
 fromPackageDescriptionString pkgStr =
-    case Cabal.parsePackageDescription pkgStr of
-        Cabal.ParseFailed e  -> Left (ConvertCabalParseError e)
-        Cabal.ParseOk _ gpkg -> Right (fromPackageDescription gpkg)
+    case Cabal.parseGenericPackageDescriptionMaybe (BS.pack pkgStr) of
+        Nothing   -> Left (ConvertCabalParseError (Cabal.PError undefined "oh no"))
+        Just gpkg -> Right (fromPackageDescription gpkg)
+
+instance Eq Cabal.PError where
+  (Cabal.PError _ s1) == (Cabal.PError _ s2) = s1 == s2
 
 data ConvertError = ConvertCabalParseError Cabal.PError
   deriving(Show, Eq)
@@ -102,10 +109,10 @@ fromSourceRepos (_repo@Cabal.SourceRepo{..}:_more) =
     -- )
 
 fromDependency :: Cabal.Dependency -> Dependency
-fromDependency (Cabal.Dependency pn vr) | vr == Cabal.anyVersion =
-    Dependency (show (Cabal.disp pn)) Nothing
-fromDependency (Cabal.Dependency pn vr) =
-    Dependency (show (Cabal.disp pn <+> Cabal.disp vr)) Nothing
+fromDependency (Cabal.Dependency pn vr _) | vr == Cabal.anyVersion =
+    Dependency (show (Cabal.pretty pn)) Nothing
+fromDependency (Cabal.Dependency pn vr _) =
+    Dependency (show (Cabal.pretty pn <+> Cabal.pretty vr)) Nothing
 
 fromLegacyDependency :: Cabal.LegacyExeDependency -> Dependency
 fromLegacyDependency (Cabal.LegacyExeDependency pn vr) | vr == Cabal.anyVersion =
@@ -185,10 +192,10 @@ fromCondComponentHasBuildInfo (Cabal.CondBranch cond ifTree elseTree) =
 
 fromCondition :: Cabal.Condition Cabal.ConfVar -> String
 fromCondition (Cabal.Var c) = case c of
-    Cabal.OS os -> "os(" ++ show (Cabal.disp os) ++ ")"
+    Cabal.OS os -> "os(" ++ show (Cabal.pretty os) ++ ")"
     Cabal.Flag fl -> "flag(" ++ Cabal.unFlagName fl ++ ")"
-    Cabal.Arch ar -> "arch(" ++ show (Cabal.disp ar) ++ ")"
-    Cabal.Impl cc vr -> "impl(" ++ show (Cabal.disp cc <+> Cabal.disp vr)  ++ ")"
+    Cabal.Arch ar -> "arch(" ++ show (Cabal.pretty ar) ++ ")"
+    Cabal.Impl cc vr -> "impl(" ++ show (Cabal.pretty cc <+> Cabal.pretty vr)  ++ ")"
 fromCondition (Cabal.CNot c) = "!(" ++ fromCondition c ++ ")"
 fromCondition (Cabal.COr c1 c2) = "(" ++ fromCondition c1 ++ ") || (" ++ fromCondition c2 ++ ")"
 fromCondition (Cabal.CAnd c1 c2) = "(" ++ fromCondition c1 ++ ") && (" ++ fromCondition c2 ++ ")"
@@ -203,17 +210,17 @@ sectionWithBuildInfo d Cabal.BuildInfo{..} =
     Section { sectionData = d
             , sectionSourceDirs = processDirs hsSourceDirs
             , sectionDependencies = map fromDependency targetBuildDepends
-            , sectionDefaultExtensions = map (show . Cabal.disp)
+            , sectionDefaultExtensions = map (show . Cabal.pretty)
                                              defaultExtensions
-            , sectionOtherExtensions = map (show . Cabal.disp) otherExtensions
+            , sectionOtherExtensions = map (show . Cabal.pretty) otherExtensions
             , sectionGhcOptions = map (\l -> case words l of
                                               []  -> ""
                                               [x] -> x
                                               _   -> ensureQuoted l) $
                                   fromMaybe [] $
-                                  lookup Compiler.GHC options
+                                  lookup Compiler.GHC (Cabal.perCompilerFlavorToList options)
             , sectionGhcProfOptions = fromMaybe [] $
-                lookup Compiler.GHC profOptions
+                lookup Compiler.GHC (Cabal.perCompilerFlavorToList profOptions)
             , sectionCppOptions = cppOptions
             , sectionCCOptions = ccOptions
             , sectionCSources = cSources
@@ -233,10 +240,10 @@ libFromCondLibrary :: Cabal.CondTree Cabal.ConfVar [Cabal.Dependency] Cabal.Libr
 libFromCondLibrary (Cabal.CondNode (Cabal.Library{..}) _ _) = do
     let Cabal.BuildInfo{..} = libBuildInfo
     return Library { libraryExposed = Just libExposed
-                   , libraryExposedModules = map (show . Cabal.disp)
+                   , libraryExposedModules = map (show . Cabal.pretty)
                                                  exposedModules
-                   , libraryOtherModules = map (show . Cabal.disp) otherModules
-                   , libraryReexportedModules = map (show . Cabal.disp)
+                   , libraryOtherModules = map (show . Cabal.pretty) otherModules
+                   , libraryReexportedModules = map (show . Cabal.pretty)
                                                     reexportedModules
                    }
 
@@ -244,7 +251,7 @@ exeFromCondExecutableTup :: (Cabal.UnqualComponentName, Cabal.CondTree Cabal.Con
 exeFromCondExecutableTup (name, Cabal.CondNode Cabal.Executable{..} _ _) =
     Executable { executableName = Cabal.unUnqualComponentName name
                , executableMain = modulePath
-               , executableOtherModules = map (show . Cabal.disp)
+               , executableOtherModules = map (show . Cabal.pretty)
                                               (Cabal.otherModules buildInfo)
                }
 
@@ -254,7 +261,7 @@ testExeFromCondExecutableTup (name, Cabal.CondNode Cabal.TestSuite{..} _ _) =
         Cabal.TestSuiteExeV10 _ mainIs -> Just
             Executable { executableName = Cabal.unUnqualComponentName name
                        , executableMain = mainIs
-                       , executableOtherModules = map (show . Cabal.disp)
+                       , executableOtherModules = map (show . Cabal.pretty)
                                                   (Cabal.otherModules testBuildInfo)
                        }
         _ -> Nothing
@@ -265,7 +272,7 @@ benchExeFromCondExecutableTup (name, Cabal.CondNode Cabal.Benchmark{..} _ _) =
         Cabal.BenchmarkExeV10 _ mainIs -> Just
             Executable { executableName = Cabal.unUnqualComponentName name
                        , executableMain = mainIs
-                       , executableOtherModules = map (show . Cabal.disp)
+                       , executableOtherModules = map (show . Cabal.pretty)
                                                   (Cabal.otherModules benchmarkBuildInfo)
                        }
         _ -> Nothing
