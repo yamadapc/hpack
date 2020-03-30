@@ -103,7 +103,7 @@ toPosixFilePath = Posix.joinPath . splitDirectories
 
 expandGlobs :: FilePath -> [String] -> IO ([String], [FilePath])
 expandGlobs dir patterns = do
-  files <- (fst <$> globDir compiledPatterns dir) >>= mapM removeDirectories
+  files <- (globDir compiledPatterns dir) >>= mapM removeDirectories
   let warnings = [warn pattern | ([], pattern) <- zip files patterns]
   return (warnings, combineResults files)
   where
